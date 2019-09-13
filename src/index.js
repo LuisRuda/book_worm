@@ -11,6 +11,7 @@ import WelcomeScreen from './screens/AppSwitchNavigator/WelcomeScreen';
 import HomeScreen from './screens/HomeScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import CustomDrawerComponent from './screens/DrawerNavigator/CustomDrawerComponent';
 
 const App = () => (
   <>
@@ -29,26 +30,29 @@ const LoginStackNavigator = createStackNavigator({
   SignUpScreen,
 });
 
-const AppDrawerNavigator = createDrawerNavigator({
-  HomeScreen: {
-    screen: HomeScreen,
-    navigationOptions: {
-      title: 'Home',
-      drawerIcon: () => (
-        <Icon ios="ios-home" android="md-home" size={24} color="#000" />
-      ),
+const AppDrawerNavigator = createDrawerNavigator(
+  {
+    HomeScreen: {
+      screen: HomeScreen,
+      navigationOptions: {
+        title: 'Home',
+        drawerIcon: () => <Icon ios="ios-home" android="md-home" size={24} />,
+      },
+    },
+    SettingsScreen: {
+      screen: SettingsScreen,
+      navigationOptions: {
+        title: 'Settings',
+        drawerIcon: () => (
+          <Icon ios="ios-settings" android="md-settings" size={24} />
+        ),
+      },
     },
   },
-  SettingsScreen: {
-    screen: SettingsScreen,
-    navigationOptions: {
-      title: 'Settings',
-      drawerIcon: () => (
-        <Icon ios="ios-settings" android="md-settings" size={24} color="#000" />
-      ),
-    },
+  {
+    contentComponent: CustomDrawerComponent,
   },
-});
+);
 
 const AppSwitchNavigator = createSwitchNavigator({
   LoginStackNavigator,
