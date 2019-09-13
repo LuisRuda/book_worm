@@ -4,6 +4,7 @@ import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 import {createDrawerNavigator} from 'react-navigation-drawer';
 import Icon from 'react-native-ionicons';
+import Firebase from 'react-native-firebase';
 
 import colors from '../src/assets/colors';
 
