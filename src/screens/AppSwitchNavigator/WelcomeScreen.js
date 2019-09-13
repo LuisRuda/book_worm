@@ -21,15 +21,8 @@ export default class WelcomeScreen extends Component {
         <View style={styles.containerButtons}>
           <CustomActionButton
             style={styles.loginButton}
-            title="Login in"
-            onPress={() => this.props.navigation.navigate('HomeScreen')}>
-            <Text style={styles.text}>Login In</Text>
-          </CustomActionButton>
-          <CustomActionButton
-            style={styles.logoutButton}
-            title="Sign up"
-            onPress={() => this.props.navigation.navigate('SignUpScreen')}>
-            <Text style={styles.text}>Sign Up</Text>
+            onPress={() => this.props.navigation.navigate('LoginScreen')}>
+            <Text style={styles.text}>Login</Text>
           </CustomActionButton>
         </View>
       </View>

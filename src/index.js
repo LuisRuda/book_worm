@@ -9,7 +9,7 @@ import colors from '../src/assets/colors';
 
 import WelcomeScreen from './screens/AppSwitchNavigator/WelcomeScreen';
 import HomeScreen from './screens/HomeScreen';
-import SignUpScreen from './screens/SignUpScreen';
+import LoginScreen from './screens/LoginScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import CustomDrawerComponent from './screens/DrawerNavigator/CustomDrawerComponent';
 
@@ -20,15 +20,28 @@ const App = () => (
   </>
 );
 
-const LoginStackNavigator = createStackNavigator({
-  WelcomeScreen: {
-    screen: WelcomeScreen,
-    navigationOptions: {
-      header: null,
+const LoginStackNavigator = createStackNavigator(
+  {
+    WelcomeScreen: {
+      screen: WelcomeScreen,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    LoginScreen: {
+      screen: LoginScreen,
+      navigationOptions: {},
     },
   },
-  SignUpScreen,
-});
+  {
+    mode: 'modal',
+    defaultNavigationOptions: {
+      headerStyle: {
+        backgroundColor: colors.bgMain,
+      },
+    },
+  },
+);
 
 const AppDrawerNavigator = createDrawerNavigator(
   {
