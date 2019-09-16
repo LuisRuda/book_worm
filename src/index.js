@@ -4,7 +4,7 @@ import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 import {createDrawerNavigator} from 'react-navigation-drawer';
 import Icon from 'react-native-ionicons';
-import Firebase from 'react-native-firebase';
+import FlashMessage from 'react-native-flash-message';
 
 import colors from '../src/assets/colors';
 
@@ -18,6 +18,7 @@ const App = () => (
   <>
     <StatusBar barStyle="light-content" backgroundColor={colors.bgMain} />
     <AppContainer />
+    <FlashMessage position="top" floating />
   </>
 );
 
