@@ -71,7 +71,13 @@ export default class LoginScreen extends Component {
         if (response) {
           this.setState({isLoading: true});
           //Signin the user
-          this.onSignIn(email, password);
+          const user = await Firebase.database()
+            .ref('users/')
+            .child(response.user.uid)
+            .set({email: response.user.email, uid: response.user.uid});
+
+          this.props.navigation.navigate('LoadingScreen');
+          // this.onSignIn(email, password);
         }
       } catch (error) {
         this.setState({isLoading: false});
