@@ -1,5 +1,11 @@
 import React, {Component} from 'react';
-import {TextInput, View, Text, StyleSheet} from 'react-native';
+import {
+  TextInput,
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 import Firebase from 'react-native-firebase';
 import {showMessage} from 'react-native-flash-message';
 
@@ -13,19 +19,61 @@ export default class LoginScreen extends Component {
     isLoading: false,
   };
 
-  onSignIn = () => {
+  onSignIn = async () => {
+    const {email, password} = this.state;
+    if (email && password) {
+      this.setState({isLoading: true});
+      try {
+        const response = await Firebase.auth().signInWithEmailAndPassword(
+          email,
+          password,
+        );
 
-  }
+        if (response) {
+          this.setState({isLoading: false});
+        }
+      } catch (error) {
+        this.setState({isLoading: false});
+        switch (error.code) {
+          case 'auth/user-not-found':
+            showMessage({
+              message: 'A user with that email does not exist. Try signing Up!',
+              type: 'warning',
+            });
+            break;
+          case 'auth/invalid-email':
+            showMessage({
+              message: 'Please enter an email address!',
+              type: 'warning',
+            });
+            break;
+        }
+      }
+    } else {
+      showMessage({
+        message: 'Please enter email and password!',
+        type: 'warning',
+      });
+    }
+  };
 
   onSignUp = async () => {
     const {email, password} = this.state;
     if (email && password) {
+      this.setState({isLoading: true});
       try {
         const response = await Firebase.auth().createUserWithEmailAndPassword(
           email,
           password,
         );
+
+        if (response) {
+          this.setState({isLoading: true});
+          //Signin the user
+          this.onSignIn(email, password);
+        }
       } catch (error) {
+        this.setState({isLoading: false});
         if (error.code === 'auth/email-already-in-use') {
           showMessage({
             message: 'User already exists. Try loggin in!',
@@ -35,15 +83,22 @@ export default class LoginScreen extends Component {
       }
     } else {
       showMessage({
-        message: "Please enter email and password!",
-        type: "warning",
+        message: 'Please enter email and password!',
+        type: 'warning',
       });
     }
-  }
+  };
 
   render() {
+    const {isLoading} = this.state;
+
     return (
       <View style={styles.container}>
+        {isLoading && (
+          <View style={styles.containerLoading}>
+            <ActivityIndicator size="large" color={colors.logoColor} />
+          </View>
+        )}
         <View style={styles.sections}>
           <TextInput
             style={styles.textInput}
@@ -109,5 +164,12 @@ const styles = StyleSheet.create({
   textButton: {
     color: '#fff',
     fontWeight: '100',
+  },
+  containerLoading: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    elevation: 1000,
   },
 });
