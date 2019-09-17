@@ -7,6 +7,8 @@ import {
   TextInput,
   FlatList,
 } from 'react-native';
+import Firebase from 'react-native-firebase';
+import {showMessage} from 'react-native-flash-message';
 
 import Icon from 'react-native-ionicons';
 
@@ -20,6 +22,7 @@ export default class HomeScreen extends Component {
     super(props);
 
     this.state = {
+      currentUser: {},
       totalCount: 0,
       readingCount: 0,
       readCount: 0,
@@ -31,6 +34,18 @@ export default class HomeScreen extends Component {
     };
   }
 
+  componentDidMount = async () => {
+    const {navigation} = this.props;
+    const user = navigation.getParam('user');
+
+    const currentUserData = await Firebase.database()
+      .ref('users')
+      .child(user.uid)
+      .once('value');
+
+    this.setState({currentUser: currentUserData.val()});
+  };
+
   showAddNewBook = () => {
     this.setState({isAddNewBookVisible: true});
   };
@@ -39,17 +54,45 @@ export default class HomeScreen extends Component {
     this.setState({isAddNewBookVisible: false});
   };
 
-  addBook = book => {
-    this.setState((state, props) => ({
-        books: [...state.books, book],
-        booksReading: [...state.booksReading, book],
+  addBook = async book => {
+    try {
+      const snapshot = await Firebase.database()
+        .ref('books')
+        .child(this.state.currentUser.uid)
+        .orderByChild('name')
+        .equalTo(book)
+        .once('value');
 
-        // totalCount: state.totalCount + 1,
-        // readingCount: state.readingCount + 1,
-        isAddNewBookVisible: false,
-      }),
-      () => {},
-    );
+      if (snapshot.exists()) {
+        showMessage({
+          message: 'Unable to add as book already exists.',
+          type: 'warning',
+        });
+      } else {
+        const key = await Firebase.database()
+          .ref('books')
+          .child(this.state.currentUser.uid)
+          .push().key;
+
+        const response = await Firebase.database()
+          .ref('books')
+          .child(this.state.currentUser.uid)
+          .child(key)
+          .set({name: book, read: false});
+
+        this.setState((state, props) => ({
+            books: [...state.books, book],
+            booksReading: [...state.booksReading, book],
+            isAddNewBookVisible: false,
+          }),
+          () => {
+            console.log(this.state);
+          },
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   markAsRead = (selectedBook, index) => {
