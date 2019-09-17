@@ -9,6 +9,7 @@ import FlashMessage from 'react-native-flash-message';
 import colors from '../src/assets/colors';
 
 import WelcomeScreen from './screens/AppSwitchNavigator/WelcomeScreen';
+import LoadingScreen from './screens/AppSwitchNavigator/LoadingScreen';
 import HomeScreen from './screens/HomeScreen';
 import LoginScreen from './screens/LoginScreen';
 import SettingsScreen from './screens/SettingsScreen';
@@ -70,6 +71,7 @@ const AppDrawerNavigator = createDrawerNavigator(
 );
 
 const AppSwitchNavigator = createSwitchNavigator({
+  LoadingScreen,
   LoginStackNavigator,
   AppDrawerNavigator,
 });
