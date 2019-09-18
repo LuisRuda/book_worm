@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   FlatList,
+  Image,
 } from 'react-native';
 import Firebase from 'react-native-firebase';
 import {showMessage} from 'react-native-flash-message';
@@ -15,6 +16,7 @@ import {snapshotToArray} from '../helpers/firebaseHelpers';
 
 import BookCount from '../components/BookCount';
 import CustomActionButton from '../components/CustomActionButton';
+import ListItem from '../components/ListItem';
 
 import colors from '../assets/colors';
 
@@ -108,35 +110,42 @@ export default class HomeScreen extends Component {
     }
   };
 
-  markAsRead = (selectedBook, index) => {
-    let books = this.state.books.map(book => {
-      if (book.name === selectedBook.name) {
-        return {...book, read: true};
-      }
+  markAsRead = async (selectedBook, index) => {
+    try {
+      await Firebase.database()
+        .ref('books')
+        .child(this.state.currentUser.uid)
+        .child(selectedBook.key)
+        .update({read: true});
 
-      return book;
-    });
-    let booksReading = this.state.booksReading.filter(
-      book => book.name !== selectedBook.name,
-    );
+      let books = this.state.books.map(book => {
+        if (book.name === selectedBook.name) {
+          return {...book, read: true};
+        }
 
-    this.setState(prevState => ({
-      books: books,
-      booksReading: booksReading,
-      booksRead: [
-        ...prevState.booksRead,
-        {name: selectedBook.name, read: true},
-      ],
-      // readingCount: prevState.readingCount - 1,
-      // readCount: prevState.readCount + 1,
-    }));
+        return book;
+      });
+      let booksReading = this.state.booksReading.filter(
+        book => book.name !== selectedBook.name,
+      );
+
+      this.setState(prevState => ({
+        books: books,
+        booksReading: booksReading,
+        booksRead: [
+          ...prevState.booksRead,
+          {name: selectedBook.name, read: true},
+        ],
+        // readingCount: prevState.readingCount - 1,
+        // readCount: prevState.readCount + 1,
+      }));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   renderItem = (item, index) => (
-    <View style={styles.listItemContainer}>
-      <View style={styles.listItemTitleContainer}>
-        <Text>{item.name}</Text>
-      </View>
+    <ListItem item={item}>
       {item.read ? (
         <Icon
           ios="ios-checkmark"
@@ -151,7 +160,7 @@ export default class HomeScreen extends Component {
           <Text style={styles.markAsReadButtonText}>Mark as read</Text>
         </CustomActionButton>
       )}
-    </View>
+    </ListItem>
   );
 
   render() {
@@ -226,6 +235,7 @@ export default class HomeScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.bgMain,
   },
   header: {
     height: 70,
@@ -248,15 +258,6 @@ const styles = StyleSheet.create({
   },
   checkmarkButton: {
     backgroundColor: colors.bgSuccess,
-  },
-  listItemContainer: {
-    height: 50,
-    flexDirection: 'row',
-  },
-  listItemTitleContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingLeft: 5,
   },
   ListEmptyComponent: {
     marginTop: 50,

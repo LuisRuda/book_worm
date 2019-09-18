@@ -9,6 +9,7 @@ const colors = {
   borderColor: '#e9e9e9',
   logoColor: '#bada55',
   txtWhite: '#fff',
+  listItemBg: '#354d58da',
 };
 
 export default colors;
