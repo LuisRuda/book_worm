@@ -11,6 +11,7 @@ import Firebase from 'react-native-firebase';
 import {showMessage} from 'react-native-flash-message';
 import Icon from 'react-native-ionicons';
 import * as Animatable from 'react-native-animatable';
+import {connect} from 'react-redux';
 
 import {snapshotToArray} from '../helpers/firebaseHelpers';
 
@@ -19,7 +20,7 @@ import ListItem from '../components/ListItem';
 
 import colors from '../assets/colors';
 
-export default class HomeScreen extends Component {
+class HomeScreen extends Component {
   constructor(props) {
     super(props);
 
@@ -56,10 +57,9 @@ export default class HomeScreen extends Component {
 
     this.setState({
       currentUser: currentUserData.val(),
-      books: booksArray,
-      booksReading: booksArray.filter(book => !book.read),
-      booksRead: booksArray.filter(book => book.read),
     });
+
+    this.props.loadBooks(booksArray.reverse());
   };
 
   showAddNewBook = () => {
@@ -98,15 +98,7 @@ export default class HomeScreen extends Component {
           .child(key)
           .set({name: book, read: false});
 
-        this.setState((state, props) => ({
-            books: [...state.books, {name: book, read: false}],
-            booksReading: [...state.booksReading, {name: book, read: false}],
-            isAddNewBookVisible: false,
-          }),
-          () => {
-            console.log(this.state);
-          },
-        );
+        this.props.addBook({name: book, read: false, key});
       }
     } catch (error) {
       console.log(error);
@@ -142,6 +134,8 @@ export default class HomeScreen extends Component {
         // readingCount: prevState.readingCount - 1,
         // readCount: prevState.readCount + 1,
       }));
+
+      this.props.markBookAsRead(selectedBook);
     } catch (error) {
       console.log(error);
     }
@@ -184,7 +178,7 @@ export default class HomeScreen extends Component {
           </View>
 
           <FlatList
-            data={this.state.books}
+            data={this.props.books.books}
             renderItem={({item}, index) => this.renderItem(item, index)}
             keyExtractor={(item, index) => index.toString()}
             ListEmptyComponent={
@@ -216,6 +210,30 @@ export default class HomeScreen extends Component {
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    books: state.books,
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    loadBooks: books =>
+      dispatch({
+        type: 'LOAD_BOOKS_FROM_SERVER',
+        payload: books,
+      }),
+    addBook: book => dispatch({type: 'ADD_BOOK', payload: book}),
+    markBookAsRead: book =>
+      dispatch({type: 'MARK_BOOK_AS_READ', payload: book}),
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(HomeScreen);
 
 const styles = StyleSheet.create({
   container: {

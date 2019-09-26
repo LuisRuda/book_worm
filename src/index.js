@@ -6,6 +6,9 @@ import {createDrawerNavigator} from 'react-navigation-drawer';
 import {createBottomTabNavigator} from 'react-navigation-tabs';
 import Icon from 'react-native-ionicons';
 import FlashMessage from 'react-native-flash-message';
+import {Provider} from 'react-redux';
+
+import store from './redux/store';
 
 import colors from '../src/assets/colors';
 
@@ -25,11 +28,11 @@ const styles = StyleSheet.create({
 });
 
 const App = () => (
-  <>
+  <Provider store={store}>
     <StatusBar barStyle="light-content" backgroundColor={colors.bgMain} />
     <AppContainer />
     <FlashMessage position="top" floating />
-  </>
+  </Provider>
 );
 
 const LoginStackNavigator = createStackNavigator(
