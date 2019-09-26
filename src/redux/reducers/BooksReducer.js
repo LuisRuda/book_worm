@@ -28,6 +28,10 @@ const books = (state = initialState, action) => {
           }
           return book;
         }),
+        booksRead: [...state.booksRead, action.payload],
+        booksReading: state.booksReading.filter(
+          book => books.name !== action.payload.name,
+        ),
       };
     default:
       return state;

@@ -12,6 +12,7 @@ import store from './redux/store';
 
 import colors from '../src/assets/colors';
 
+import BooksCountContainer from './redux/containers/BooksCountContainer';
 import WelcomeScreen from './screens/AppSwitchNavigator/WelcomeScreen';
 import LoadingScreen from './screens/AppSwitchNavigator/LoadingScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -64,18 +65,27 @@ const HomeTabNavigator = createBottomTabNavigator(
       screen: HomeScreen,
       navigationOptions: {
         tabBarLabel: 'Total Books',
+        tabBarIcon: ({tintColor}) => (
+          <BooksCountContainer color={tintColor} type="books" />
+        ),
       },
     },
     BooksReadingScreen: {
       screen: BooksReadingScreen,
       navigationOptions: {
         tabBarLabel: 'Books Reading',
+        tabBarIcon: ({tintColor}) => (
+          <BooksCountContainer color={tintColor} type="booksReading" />
+        ),
       },
     },
     BooksReadScreen: {
       screen: BooksReadScreen,
       navigationOptions: {
         tabBarLabel: 'Books Read',
+        tabBarIcon: ({tintColor}) => (
+          <BooksCountContainer color={tintColor} type="booksRead" />
+        ),
       },
     },
   },
