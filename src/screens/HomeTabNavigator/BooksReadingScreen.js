@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, View, StyleSheet, FlatList} from 'react-native';
+import {View, StyleSheet, FlatList, ActivityIndicator} from 'react-native';
 import {connect} from 'react-redux';
 
 import colors from '../../assets/colors';
@@ -28,12 +28,19 @@ class BooksReadingScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
+        {this.props.books.isLoadingBooks && (
+          <View style={styles.containerLoading}>
+            <ActivityIndicator size="large" color={colors.logoColor} />
+          </View>
+        )}
         <FlatList
           data={this.props.books.booksReading}
           renderItem={({item}, index) => this.renderItem(item, index)}
           keyExtractor={(item, index) => index.toString()}
           ListEmptyComponent={
-            <ListEmptyComponent text="Not reading any books." />
+            !this.props.books.isLoadingBooks && (
+              <ListEmptyComponent text="Not reading any books." />
+            )
           }
         />
       </View>

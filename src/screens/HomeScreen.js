@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import Firebase from 'react-native-firebase';
 import {showMessage} from 'react-native-flash-message';
@@ -61,6 +62,7 @@ class HomeScreen extends Component {
     });
 
     this.props.loadBooks(booksArray.reverse());
+    this.props.toggleIsLoadingBooks(false);
   };
 
   showAddNewBook = () => {
@@ -75,6 +77,7 @@ class HomeScreen extends Component {
     this.setState({textInputData: ''});
     this.textInputRef.setNativeProps({text: ''});
     try {
+      this.props.toggleIsLoadingBooks(true);
       const snapshot = await Firebase.database()
         .ref('books')
         .child(this.state.currentUser.uid)
@@ -100,14 +103,18 @@ class HomeScreen extends Component {
           .set({name: book, read: false});
 
         this.props.addBook({name: book, read: false, key});
+        this.props.toggleIsLoadingBooks(false);
       }
     } catch (error) {
       console.log(error);
+      this.props.toggleIsLoadingBooks(false);
     }
   };
 
   markAsRead = async (selectedBook, index) => {
     try {
+      this.props.toggleIsLoadingBooks(true);
+
       await Firebase.database()
         .ref('books')
         .child(this.state.currentUser.uid)
@@ -137,8 +144,10 @@ class HomeScreen extends Component {
       }));
 
       this.props.markBookAsRead(selectedBook);
+      this.props.toggleIsLoadingBooks(false);
     } catch (error) {
       console.log(error);
+      this.props.toggleIsLoadingBooks(false);
     }
   };
 
@@ -168,6 +177,11 @@ class HomeScreen extends Component {
       <View style={styles.container}>
         <SafeAreaView />
         <View style={styles.container}>
+          {this.props.books.isLoadingBooks && (
+            <View style={styles.containerLoading}>
+              <ActivityIndicator size="large" color={colors.logoColor} />
+            </View>
+          )}
           <View style={styles.textInputContainer}>
             <TextInput
               onChangeText={text => this.setState({textInputData: text})}
@@ -183,7 +197,9 @@ class HomeScreen extends Component {
             renderItem={({item}, index) => this.renderItem(item, index)}
             keyExtractor={(item, index) => index.toString()}
             ListEmptyComponent={
-              <ListEmptyComponent text="Not reading any books." />
+              !this.props.books.isLoadingBooks && (
+                <ListEmptyComponent text="Not reading any books." />
+              )
             }
           />
 
@@ -224,6 +240,8 @@ const mapDispatchToProps = dispatch => {
     addBook: book => dispatch({type: 'ADD_BOOK', payload: book}),
     markBookAsRead: book =>
       dispatch({type: 'MARK_BOOK_AS_READ', payload: book}),
+    toggleIsLoadingBooks: bool => 
+      dispatch({type: 'TOGGLE_IS_LOADING_BOOKS', payload: bool}),
   };
 };
 
@@ -294,5 +312,12 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.5,
     borderTopColor: colors.borderColor,
     flexDirection: 'row',
+  },
+  containerLoading: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    elevation: 1000,
   },
 });
