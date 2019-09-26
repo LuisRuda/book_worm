@@ -17,6 +17,7 @@ import {snapshotToArray} from '../helpers/firebaseHelpers';
 
 import CustomActionButton from '../components/CustomActionButton';
 import ListItem from '../components/ListItem';
+import ListEmptyComponent from '../components/ListEmptyComponent';
 
 import colors from '../assets/colors';
 
@@ -182,11 +183,7 @@ class HomeScreen extends Component {
             renderItem={({item}, index) => this.renderItem(item, index)}
             keyExtractor={(item, index) => index.toString()}
             ListEmptyComponent={
-              <View style={styles.ListEmptyComponent}>
-                <Text style={styles.ListEmptyComponentText}>
-                  Not reading any books.
-                </Text>
-              </View>
+              <ListEmptyComponent text="Not reading any books." />
             }
           />
 
