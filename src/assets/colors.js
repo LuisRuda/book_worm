@@ -5,7 +5,7 @@ const colors = {
   bgMain: '#2e424d',
   bgTextInput: '#ececec',
   bgTextInputDark: '#b6b6b6',
-  txtPlaceholder: 'grey',
+  txtPlaceholder: '#466575',
   borderColor: '#e9e9e9',
   logoColor: '#bada55',
   txtWhite: '#fff',

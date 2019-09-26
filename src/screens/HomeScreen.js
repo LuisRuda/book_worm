@@ -6,15 +6,14 @@ import {
   StyleSheet,
   TextInput,
   FlatList,
-  Image,
 } from 'react-native';
 import Firebase from 'react-native-firebase';
 import {showMessage} from 'react-native-flash-message';
 import Icon from 'react-native-ionicons';
+import * as Animatable from 'react-native-animatable';
 
 import {snapshotToArray} from '../helpers/firebaseHelpers';
 
-import BookCount from '../components/BookCount';
 import CustomActionButton from '../components/CustomActionButton';
 import ListItem from '../components/ListItem';
 
@@ -35,6 +34,8 @@ export default class HomeScreen extends Component {
       booksReading: [],
       booksRead: [],
     };
+
+    this.textInputRef = null;
   }
 
   componentDidMount = async () => {
@@ -70,6 +71,8 @@ export default class HomeScreen extends Component {
   };
 
   addBook = async book => {
+    this.setState({textInputData: ''});
+    this.textInputRef.setNativeProps({text: ''});
     try {
       const snapshot = await Firebase.database()
         .ref('books')
@@ -169,38 +172,16 @@ export default class HomeScreen extends Component {
     return (
       <View style={styles.container}>
         <SafeAreaView />
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Book Worm</Text>
-        </View>
         <View style={styles.container}>
-          {this.state.isAddNewBookVisible && (
-            <View style={styles.textInputContainer}>
-              <TextInput
-                onChangeText={text => this.setState({textInputData: text})}
-                style={styles.textInput}
-                placeholder="Enter Book Name"
-                placeholderTextColor="grey"
-              />
-              <CustomActionButton
-                style={styles.checkmarkButton}
-                onPress={() => this.addBook(textInputData)}>
-                <Icon
-                  ios="ios-checkmark"
-                  android="md-checkmark"
-                  color="#fff"
-                  size={40}
-                />
-              </CustomActionButton>
-              <CustomActionButton onPress={this.hideAddNewBook}>
-                <Icon
-                  ios="ios-close"
-                  android="md-close"
-                  color="#fff"
-                  size={40}
-                />
-              </CustomActionButton>
-            </View>
-          )}
+          <View style={styles.textInputContainer}>
+            <TextInput
+              onChangeText={text => this.setState({textInputData: text})}
+              style={styles.textInput}
+              placeholder="Enter Book Name"
+              placeholderTextColor={colors.txtPlaceholder}
+              ref={component => {this.textInputRef = component}}
+            />
+          </View>
 
           <FlatList
             data={this.state.books}
@@ -214,17 +195,21 @@ export default class HomeScreen extends Component {
               </View>
             }
           />
-          <CustomActionButton
-            position="right"
-            style={styles.addNewBookButton}
-            onPress={this.showAddNewBook}>
-            <Text style={styles.addNewBookButtonText}>+</Text>
-          </CustomActionButton>
-        </View>
-        <View style={styles.footer}>
-          <BookCount title="Total Books" count={this.state.books.length} />
-          <BookCount title="Reading" count={this.state.booksReading.length} />
-          <BookCount title="Read" count={this.state.booksRead.length} />
+
+          <Animatable.View
+            useNativeDriver={true}
+            animation={
+              this.state.textInputData.length > 0
+                ? 'slideInRight'
+                : 'slideOutRight'
+            }>
+            <CustomActionButton
+              position="right"
+              style={styles.addNewBookButton}
+              onPress={() => this.addBook(this.state.textInputData)}>
+              <Text style={styles.addNewBookButtonText}>+</Text>
+            </CustomActionButton>
+          </Animatable.View>
         </View>
         <SafeAreaView />
       </View>
@@ -250,11 +235,17 @@ const styles = StyleSheet.create({
   textInputContainer: {
     height: 50,
     flexDirection: 'row',
+    margin: 5,
   },
   textInput: {
     flex: 1,
-    backgroundColor: colors.bgTextInput,
+    backgroundColor: 'transparent',
     paddingLeft: 5,
+    borderColor: colors.listItemBg,
+    borderBottomWidth: 5,
+    fontSize: 22,
+    fontWeight: '200',
+    color: colors.txtWhite,
   },
   checkmarkButton: {
     backgroundColor: colors.bgSuccess,
@@ -277,6 +268,7 @@ const styles = StyleSheet.create({
   addNewBookButton: {
     backgroundColor: colors.bgPrimary,
     borderRadius: 25,
+    zIndex: 100,
   },
   addNewBookButtonText: {
     color: '#FFF',

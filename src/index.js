@@ -1,8 +1,9 @@
 import React from 'react';
-import {StatusBar} from 'react-native';
+import {StatusBar, StyleSheet} from 'react-native';
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 import {createDrawerNavigator} from 'react-navigation-drawer';
+import {createBottomTabNavigator} from 'react-navigation-tabs';
 import Icon from 'react-native-ionicons';
 import FlashMessage from 'react-native-flash-message';
 
@@ -14,6 +15,14 @@ import HomeScreen from './screens/HomeScreen';
 import LoginScreen from './screens/LoginScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import CustomDrawerComponent from './screens/DrawerNavigator/CustomDrawerComponent';
+import BooksReadingScreen from './screens/HomeTabNavigator/BooksReadingScreen';
+import BooksReadScreen from './screens/HomeTabNavigator/BooksReadScreen';
+
+const styles = StyleSheet.create({
+  iconDrawer: {
+    marginLeft: 30,
+  },
+});
 
 const App = () => (
   <>
@@ -46,10 +55,95 @@ const LoginStackNavigator = createStackNavigator(
   },
 );
 
-const AppDrawerNavigator = createDrawerNavigator(
+const HomeTabNavigator = createBottomTabNavigator(
   {
     HomeScreen: {
       screen: HomeScreen,
+      navigationOptions: {
+        tabBarLabel: 'Total Books',
+      },
+    },
+    BooksReadingScreen: {
+      screen: BooksReadingScreen,
+      navigationOptions: {
+        tabBarLabel: 'Books Reading',
+      },
+    },
+    BooksReadScreen: {
+      screen: BooksReadScreen,
+      navigationOptions: {
+        tabBarLabel: 'Books Read',
+      },
+    },
+  },
+  {
+    tabBarOptions: {
+      style: {
+        backgroundColor: colors.bgMain,
+      },
+      activeTintColor: colors.logoColor,
+      inactiveTintColor: colors.bgTextInput,
+    },
+  },
+);
+
+HomeTabNavigator.navigationOptions = ({navigation}) => {
+  const {routeName} = navigation.state.routes[navigation.state.index];
+
+  switch (routeName) {
+    case 'HomeScreen':
+      return {
+        headerTitle: 'Total Books',
+      };
+    case 'BooksReadingScreen':
+      return {
+        headerTitle: 'Books Reading',
+      };
+    case 'BooksReadScreen':
+      return {
+        headerTitle: 'Books Read',
+      };
+    default:
+      return {
+        headerTitle: 'Book Worm',
+      };
+  }
+};
+
+const HomeStackNavigator = createStackNavigator(
+  {
+    HomeTabNavigator: {
+      screen: HomeTabNavigator,
+      navigationOptions: ({navigation}) => {
+        return {
+          headerLeft: (
+            <Icon
+              ios="ios-menu"
+              android="md-menu"
+              size={30}
+              color={colors.logoColor}
+              onPress={() => navigation.openDrawer()}
+              style={styles.iconDrawer}
+            />
+          ),
+        };
+      },
+    },
+  },
+  {
+    defaultNavigationOptions: {
+      headerStyle: {
+        backgroundColor: colors.bgMain,
+      },
+      headerTintColor: colors.txtWhite,
+    },
+  },
+);
+
+const AppDrawerNavigator = createDrawerNavigator(
+  {
+    HomeStackNavigator: {
+      screen: HomeStackNavigator,
       navigationOptions: {
         title: 'Home',
         drawerIcon: () => <Icon ios="ios-home" android="md-home" size={24} />,
