@@ -13,6 +13,7 @@ import {showMessage} from 'react-native-flash-message';
 import Icon from 'react-native-ionicons';
 import * as Animatable from 'react-native-animatable';
 import {connect} from 'react-redux';
+import Swipeout from 'react-native-swipeout';
 
 import {snapshotToArray} from '../helpers/firebaseHelpers';
 
@@ -151,24 +152,86 @@ class HomeScreen extends Component {
     }
   };
 
-  renderItem = (item, index) => (
-    <ListItem item={item}>
-      {item.read ? (
-        <Icon
-          ios="ios-checkmark"
-          android="md-checkmark"
-          color={colors.logoColor}
-          size={30}
-        />
-      ) : (
-        <CustomActionButton
-          style={styles.markAsReadButton}
-          onPress={() => this.markAsRead(item, index)}>
-          <Text style={styles.markAsReadButtonText}>Mark as read</Text>
-        </CustomActionButton>
-      )}
-    </ListItem>
-  );
+  markAsUnread = async (selectedBook, index) => {
+    try {
+      this.props.toggleIsLoadingBooks(true);
+
+      await Firebase.database()
+        .ref('books')
+        .child(this.state.currentUser.uid)
+        .child(selectedBook.key)
+        .update({read: false});
+
+      this.props.markBookAsUnread(selectedBook);
+      this.props.toggleIsLoadingBooks(false);
+    } catch (err) {
+      console.log(err);
+      this.props.toggleIsLoadingBooks(false);
+    }
+  };
+
+  renderItem = (item, index) => {
+    let swipeoutButtons = [
+      {
+        text: 'Delete',
+        component: (
+          <View style={styles.buttonDelete}>
+            <Icon
+              ios="ios-trash"
+              android="md-trash"
+              size={24}
+              color={colors.txtWhite}
+            />
+          </View>
+        ),
+        backgroundColor: colors.bgDelete,
+        onPress: () => alert('delete book'),
+      },
+    ];
+
+    if (!item.read) {
+      swipeoutButtons.unshift({
+        text: 'Mark Read',
+        component: (
+          <View style={styles.buttonDelete}>
+            <Text style={styles.markAsReadButtonText}>Mark as Read</Text>
+          </View>
+        ),
+        backgroundColor: colors.bgSuccessDark,
+        onPress: () => this.markAsRead(item, index),
+      });
+    } else {
+      swipeoutButtons.unshift({
+        text: 'Mark Unread',
+        component: (
+          <View style={styles.buttonDelete}>
+            <Text style={styles.markAsReadButtonText}>Mark as Unread</Text>
+          </View>
+        ),
+        backgroundColor: colors.bgUnread,
+        onPress: () => this.markAsUnread(item, index),
+      });
+    }
+
+    return (
+      <Swipeout
+        backgroundColor={colors.bgMain}
+        style={styles.swipeout}
+        right={swipeoutButtons}
+        autoClose>
+        <ListItem marginVertical={0} item={item}>
+          {item.read && (
+            <Icon
+              ios="ios-checkmark"
+              android="md-checkmark"
+              color={colors.logoColor}
+              size={30}
+            />
+          )}
+        </ListItem>
+      </Swipeout>
+    );
+  };
 
   render() {
     const {textInputData} = this.state;
@@ -240,7 +303,9 @@ const mapDispatchToProps = dispatch => {
     addBook: book => dispatch({type: 'ADD_BOOK', payload: book}),
     markBookAsRead: book =>
       dispatch({type: 'MARK_BOOK_AS_READ', payload: book}),
-    toggleIsLoadingBooks: bool => 
+    markBookAsUnread: book =>
+      dispatch({type: 'MARK_BOOK_AS_UNREAD', payload: book}),
+    toggleIsLoadingBooks: bool =>
       dispatch({type: 'TOGGLE_IS_LOADING_BOOKS', payload: bool}),
   };
 };
@@ -319,5 +384,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 1000,
     elevation: 1000,
+  },
+  buttonDelete: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  swipeout: {
+    marginHorizontal: 5,
+    marginVertical: 5,
   },
 });

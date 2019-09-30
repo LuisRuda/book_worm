@@ -3,9 +3,9 @@ import {View, Text, Image, StyleSheet} from 'react-native';
 
 import colors from '../assets/colors';
 
-const ListItem = ({item, children}) => {
+const ListItem = ({item, children, marginVertical}) => {
   return (
-    <View style={styles.listItemContainer}>
+    <View style={[styles.listItemContainer, {marginVertical}]}>
       <View style={styles.imageContainer}>
         <Image style={styles.image} />
       </View>
@@ -17,13 +17,16 @@ const ListItem = ({item, children}) => {
   );
 };
 
+ListItem.defaultProps = {
+  marginVertical: 5,
+};
+
 const styles = StyleSheet.create({
   listItemContainer: {
     minHeight: 100,
     flexDirection: 'row',
     backgroundColor: colors.listItemBg,
     alignItems: 'center',
-    marginVertical: 5,
   },
   imageContainer: {
     height: 70,
