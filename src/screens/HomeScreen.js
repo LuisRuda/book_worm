@@ -170,6 +170,24 @@ class HomeScreen extends Component {
     }
   };
 
+  deleteBook = async (selectedBook, index) => {
+    try {
+      this.props.toggleIsLoadingBooks(true);
+
+      await Firebase.database()
+        .ref('books')
+        .child(this.state.currentUser.uid)
+        .child(selectedBook.key)
+        .remove();
+
+      this.props.deleteBook(selectedBook);
+      this.props.toggleIsLoadingBooks(false);
+    } catch (err) {
+      console.log(err);
+      this.props.toggleIsLoadingBooks(false);
+    }
+  };
+
   renderItem = (item, index) => {
     let swipeoutButtons = [
       {
@@ -185,7 +203,7 @@ class HomeScreen extends Component {
           </View>
         ),
         backgroundColor: colors.bgDelete,
-        onPress: () => alert('delete book'),
+        onPress: () => this.deleteBook(item, index),
       },
     ];
 
@@ -222,6 +240,7 @@ class HomeScreen extends Component {
         <ListItem marginVertical={0} item={item}>
           {item.read && (
             <Icon
+              style={styles.iconSwip}
               ios="ios-checkmark"
               android="md-checkmark"
               color={colors.logoColor}
@@ -307,6 +326,7 @@ const mapDispatchToProps = dispatch => {
       dispatch({type: 'MARK_BOOK_AS_UNREAD', payload: book}),
     toggleIsLoadingBooks: bool =>
       dispatch({type: 'TOGGLE_IS_LOADING_BOOKS', payload: bool}),
+    deleteBook: book => dispatch({type: 'DELETE_BOOK', payload: book}),
   };
 };
 
@@ -393,5 +413,8 @@ const styles = StyleSheet.create({
   swipeout: {
     marginHorizontal: 5,
     marginVertical: 5,
+  },
+  iconSwip: {
+    marginRight: 5,
   },
 });
