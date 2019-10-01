@@ -1,13 +1,18 @@
 import React from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 
 import colors from '../assets/colors';
 
-const ListItem = ({item, children, marginVertical}) => {
+const ListItem = ({item, children, marginVertical, editable, onPress}) => {
   return (
     <View style={[styles.listItemContainer, {marginVertical}]}>
       <View style={styles.imageContainer}>
-        <Image style={styles.image} />
+        <TouchableOpacity
+          style={styles.button}
+          disabled={!editable}
+          onPress={() => onPress(item)}>
+          <Image style={styles.image} />
+        </TouchableOpacity>
       </View>
       <View style={styles.listItemTitleContainer}>
         <Text style={styles.listItemTitle}>{item.name}</Text>
@@ -19,6 +24,7 @@ const ListItem = ({item, children, marginVertical}) => {
 
 ListItem.defaultProps = {
   marginVertical: 5,
+  editable: false,
 };
 
 const styles = StyleSheet.create({
@@ -38,6 +44,7 @@ const styles = StyleSheet.create({
     height: null,
     width: null,
     borderRadius: 35,
+    backgroundColor: '#fff',
   },
   listItemTitleContainer: {
     flex: 1,
@@ -48,6 +55,9 @@ const styles = StyleSheet.create({
     fontWeight: '100',
     fontSize: 22,
     color: colors.txtWhite,
+  },
+  button: {
+    flex: 1,
   },
 });
 

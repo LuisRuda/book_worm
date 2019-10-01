@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import {StatusBar, StyleSheet} from 'react-native';
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
@@ -28,13 +28,21 @@ const styles = StyleSheet.create({
   },
 });
 
-const App = () => (
-  <Provider store={store}>
-    <StatusBar barStyle="light-content" backgroundColor={colors.bgMain} />
-    <AppContainer />
-    <FlashMessage position="top" floating />
-  </Provider>
-);
+class App extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <Provider store={store}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.bgMain} />
+        <AppContainer />
+        <FlashMessage position="top" floating />
+      </Provider>
+    );
+  }
+}
 
 const LoginStackNavigator = createStackNavigator(
   {

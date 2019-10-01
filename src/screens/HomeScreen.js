@@ -12,8 +12,10 @@ import Firebase from 'react-native-firebase';
 import {showMessage} from 'react-native-flash-message';
 import Icon from 'react-native-ionicons';
 import * as Animatable from 'react-native-animatable';
+import {compose} from 'redux';
 import {connect} from 'react-redux';
 import Swipeout from 'react-native-swipeout';
+import {ActionSheetCustom as ActionSheet} from 'react-native-actionsheet';
 
 import {snapshotToArray} from '../helpers/firebaseHelpers';
 
@@ -22,6 +24,8 @@ import ListItem from '../components/ListItem';
 import ListEmptyComponent from '../components/ListEmptyComponent';
 
 import colors from '../assets/colors';
+
+const options = ['Select from Photos', 'Camera', 'Cancel'];
 
 class HomeScreen extends Component {
   constructor(props) {
@@ -188,6 +192,14 @@ class HomeScreen extends Component {
     }
   };
 
+  addBookImage = selectedBook => {
+    this.ActionSheet.show();
+  };
+
+  handleActionImage = option => {
+    alert(option);
+  };
+
   renderItem = (item, index) => {
     let swipeoutButtons = [
       {
@@ -237,7 +249,11 @@ class HomeScreen extends Component {
         style={styles.swipeout}
         right={swipeoutButtons}
         autoClose>
-        <ListItem marginVertical={0} item={item}>
+        <ListItem
+          editable
+          marginVertical={0}
+          item={item}
+          onPress={() => this.addBookImage(item)}>
           {item.read && (
             <Icon
               style={styles.iconSwip}
@@ -257,6 +273,12 @@ class HomeScreen extends Component {
 
     return (
       <View style={styles.container}>
+        <ActionSheet
+          ref={o => this.ActionSheet = o}
+          options={options}
+          cancelButtonIndex={2}
+          onPress={index => this.handleActionImage(index)}
+        />
         <SafeAreaView />
         <View style={styles.container}>
           {this.props.books.isLoadingBooks && (
